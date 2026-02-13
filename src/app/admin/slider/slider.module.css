@@ -1,0 +1,235 @@
+.topBar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 2rem;
+    align-items: center;
+}
+
+.input {
+    padding: 12px 15px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background-color: white;
+    font-size: 0.9rem;
+    color: #666;
+    outline: none;
+}
+
+.fileInput {
+    padding: 9px 15px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background-color: white;
+    font-size: 0.9rem;
+    color: #666;
+    cursor: pointer;
+}
+
+.submitBtn {
+    background-color: #3b82f6;
+    /* Bright blue */
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    min-width: 100px;
+}
+
+.submitBtn:hover {
+    background-color: #2563eb;
+}
+
+.deleteBtn {
+    background-color: #0f172a;
+    /* Dark navy */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    min-width: 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sectionTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #111;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cardMediaWrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 75%;
+    /* 4:3 Aspect Ratio */
+}
+
+.cardMedia {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background-color: #f3f4f6;
+}
+
+.checkboxWrapper {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    background: white;
+    border-radius: 4px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #3b82f6;
+}
+
+.cardBody {
+    padding: 1rem;
+    background: #fdfdfd;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.label {
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.val {
+    font-weight: 600;
+    color: #111;
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.actionBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0;
+}
+
+.view {
+    color: #1e3a8a;
+}
+
+/* Dark blue */
+.delete {
+    color: #ef4444;
+}
+
+/* Red */
+
+/* Toggle Switch Styles */
+.toggle {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 20px;
+}
+
+.toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: #2196F3;
+}
+
+input:checked+.slider:before {
+    transform: translateX(14px);
+}
+
+@media (max-width: 768px) {
+    .topBar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .input,
+    .fileInput {
+        width: 100%;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "5495cb92-f975-486b-88fc-13a424c9a299",
+    "type": "IMAGE",
+    "name": "acv",
+    "url": "/uploads/22fe4412-9fb7-4993-a687-65a8cb10d066-20250310_113511.jpg",
+    "createdAt": "2026-02-12T07:02:30.394Z"
+  },
+  {
+    "id": "695e2084-786a-4619-88ce-88538d0041f5",
+    "type": "VIDEO",
+    "name": "bgf",
+    "url": "/uploads/59d6709d-3b0b-46d6-9a59-8eb1ce2c6c4f-WhatsApp Video 2026-02-11 at 2.18.48 PM.mp4",
+    "createdAt": "2026-02-12T11:21:57.267Z"
+  },
+  {
+    "id": "65a2d46e-67ff-4dd9-b906-50d5c8bdb48e",
+    "type": "IMAGE",
+    "name": "zdt",
+    "url": "/uploads/09a0fd2a-d9cd-4246-91eb-5264798a1ac0-IMG_2082.jpeg",
+    "createdAt": "2026-02-13T12:17:58.013Z"
+  },
+  {
+    "id": "e48bbb36-c791-4c4a-9cca-24371ae6a501",
+    "type": "IMAGE",
+    "name": "hgf",
+    "url": "/uploads/0dc8aaaa-c20c-42c4-afaf-7c28ed800697-20250311_094027(0).jpg",
+    "createdAt": "2026-02-13T12:18:19.471Z"
+  }
+]

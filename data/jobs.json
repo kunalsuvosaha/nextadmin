@@ -1,0 +1,32 @@
+[
+  {
+    "id": "e1e0719f-20e9-40b3-a853-09f3a8e018a0",
+    "title": "Web developer",
+    "designation": "Jr",
+    "salary": "5000",
+    "category": "abc",
+    "jobType": "internship",
+    "location": "Siliguri",
+    "deadline": "2026-02-14",
+    "skillName": "HTML",
+    "description": "kuch v likhu",
+    "imageUrl": "no need",
+    "status": true,
+    "createdAt": "2026-02-12T06:36:44.866Z"
+  },
+  {
+    "id": "317a58b2-333e-4d6b-85cc-c351f38eca29",
+    "title": "deginer",
+    "designation": "sr",
+    "salary": "1000000",
+    "category": "team",
+    "jobType": "internship",
+    "location": "Siliguri",
+    "deadline": "2026-02-27",
+    "skillName": "any",
+    "description": "abc",
+    "imageUrl": "",
+    "status": true,
+    "createdAt": "2026-02-13T12:45:46.935Z"
+  }
+]

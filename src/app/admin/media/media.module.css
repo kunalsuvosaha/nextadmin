@@ -1,0 +1,246 @@
+.topBar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 2rem;
+    align-items: center;
+}
+
+.input {
+    padding: 12px 15px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background-color: white;
+    font-size: 0.9rem;
+    color: #666;
+    outline: none;
+}
+
+.select {
+    padding: 12px 15px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background-color: white;
+    font-size: 0.9rem;
+    color: #333;
+    min-width: 120px;
+    cursor: pointer;
+}
+
+.fileLabel {
+    padding: 12px 15px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background-color: white;
+    font-size: 0.9rem;
+    color: #9ca3af;
+    cursor: pointer;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.submitBtn {
+    background-color: #3b82f6;
+    /* Bright blue */
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    min-width: 100px;
+}
+
+.submitBtn:hover {
+    background-color: #2563eb;
+}
+
+.deleteBtn {
+    background-color: #0f172a;
+    /* Dark navy */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    min-width: 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sectionTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #111;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cardMediaWrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 75%;
+    /* 4:3 Aspect Ratio */
+}
+
+.cardMedia {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background-color: #f3f4f6;
+}
+
+.checkboxWrapper {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    background: white;
+    border-radius: 4px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #3b82f6;
+}
+
+.cardBody {
+    padding: 1rem;
+    background: #fdfdfd;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.label {
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.val {
+    font-weight: 600;
+    color: #111;
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.actionBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0;
+}
+
+.replace {
+    color: #1e3a8a;
+}
+
+/* Dark blue */
+.delete {
+    color: #ef4444;
+}
+
+/* Red */
+
+/* Modal Styles */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    flex-direction: column;
+}
+
+.closeModalBtn {
+    align-self: flex-end;
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin-bottom: 0.5rem;
+}
+
+.videoPlayer {
+    max-width: 100%;
+    max-height: 80vh;
+    border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+    .topBar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .fileLabel {
+        width: 100%;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
