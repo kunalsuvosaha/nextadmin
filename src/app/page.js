@@ -3,6 +3,8 @@ import styles from "./page.module.css";
 import dbConnect from '@/lib/mongodb';
 import Slider from '@/models/Slider';
 
+export const dynamic = 'force-dynamic';
+
 async function getSliders() {
   // Direct DB access since this is a Server Component
   await dbConnect();
