@@ -6,12 +6,23 @@ import Slider from '@/models/Slider';
 export const dynamic = 'force-dynamic';
 
 async function getSliders() {
-  // Direct DB access since this is a Server Component
-  await dbConnect();
-  // Pure JSON needed for client components if passed, but here directly rendering
-  const sliders = await Slider.find({ status: true }).lean();
-  // Convert _id to string if needed
-  return sliders.map(s => ({ ...s, id: s._id.toString() }));
+  try {
+    // Direct DB access since this is a Server Component
+    await dbConnect();
+    // Pure JSON needed for client components if passed, but here directly rendering
+    const sliders = await Slider.find({ status: true }).lean();
+    // Convert _id to string if needed
+    return sliders.map(s => ({ ...s, id: s._id.toString() }));
+  } catch (error) {
+    console.error("Database Error:", error);
+    // Return error as a visible slide to help debugging on Vercel
+    return [{
+      id: 'error-slide',
+      name: `DB Error: ${error.message}`,
+      imageUrl: 'https://images.unsplash.com/photo-1594322436404-5a0526db4d13?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80', // Red warning image
+      status: true
+    }];
+  }
 }
 
 export default async function Home() {
