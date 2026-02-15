@@ -13,10 +13,17 @@ export async function POST(request) {
     try {
         await dbConnect();
 
-        console.log("Upload Request Started");
-        console.log("Cloud Name exists:", !!process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME);
-        console.log("API Key exists:", !!process.env.CLOUDINARY_API_KEY);
-        console.log("API Secret exists:", !!process.env.CLOUDINARY_API_SECRET);
+        // STRICT DEBUGGING: Check Env Vars
+        const cloudName = process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+        const apiKey = process.env.CLOUDINARY_API_KEY || process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
+        const apiSecret = process.env.CLOUDINARY_API_SECRET || process.env.NEXT_PUBLIC_CLOUDINARY_API_SECRET;
+
+        // If missing, return exact error to Frontend Alert
+        if (!cloudName) return NextResponse.json({ success: false, message: 'CRITICAL: Cloud Name is Mising in Vercel Env' }, { status: 500 });
+        if (!apiKey) return NextResponse.json({ success: false, message: 'CRITICAL: API Key is Missing in Vercel Env' }, { status: 500 });
+        if (!apiSecret) return NextResponse.json({ success: false, message: 'CRITICAL: API Secret is Missing in Vercel Env' }, { status: 500 });
+
+        console.log("Upload Request Started with Cloud Name:", cloudName);
 
         const data = await request.formData();
         const file = data.get('file');
