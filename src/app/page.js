@@ -5,6 +5,8 @@ import Slider from '@/models/Slider';
 
 export const dynamic = 'force-dynamic';
 
+console.log("NextAdmin Version: v2.0 (Fixes Applied)");
+
 async function getSliders() {
   try {
     // Direct DB access since this is a Server Component
