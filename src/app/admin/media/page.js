@@ -88,8 +88,12 @@ export default function MediaPage() {
             if (fileInput) fileInput.value = '';
             fetchMedia();
         } else {
-            const errorData = await res.json();
-            alert(`Failed: ${errorData.message}`);
+            try {
+                const errorData = await res.json();
+                alert(`Failed: ${errorData.message}`);
+            } catch (e) {
+                alert(`Failed: Server Error (${res.status} ${res.statusText})`);
+            }
         }
     }
 
