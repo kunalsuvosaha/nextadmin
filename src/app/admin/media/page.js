@@ -88,7 +88,8 @@ export default function MediaPage() {
             if (fileInput) fileInput.value = '';
             fetchMedia();
         } else {
-            alert('Failed to add media');
+            const errorData = await res.json();
+            alert(`Failed: ${errorData.message}`);
         }
     }
 
