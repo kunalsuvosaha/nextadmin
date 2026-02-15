@@ -48,10 +48,6 @@ export default function MediaPage() {
     async function handleSubmit() {
         if (!name) return alert('Name is required');
 
-        // Validation: Either file or URL needed (but URL is disabled now, so essentially file needed if acting as thumbnail)
-        // If type is VIDEO, and URL disabled, we might expect a file (thumbnail). 
-        // User said: "if i choose video then i cant upload file, fix it"
-
         if (!file && !url) return alert('File or URL is required');
 
         setLoading(true);
@@ -65,7 +61,7 @@ export default function MediaPage() {
             formData.append('type', type);
             res = await fetch('/api/admin/media', { method: 'POST', body: formData });
         } else {
-            // JSON fallback (only if URL present and no file - though currently URL is disabled)
+            // JSON fallback (only if URL present and no file)
             if (type === 'VIDEO' && !url) {
                 setLoading(false);
                 return alert('Video upload is disabled for now (URL disabled). Upload a file/thumbnail instead.');
@@ -97,8 +93,6 @@ export default function MediaPage() {
         }
     }
 
-
-
     async function handleDelete(id) {
         if (!confirm('Are you sure?')) return;
         const res = await fetch(`/api/admin/media/${id}`, { method: 'DELETE' });
@@ -107,16 +101,6 @@ export default function MediaPage() {
 
     const images = mediaItems.filter(m => m.type === 'IMAGE');
     const videos = mediaItems.filter(m => m.type === 'VIDEO');
-
-    // Helper to extract YouTube ID or show placeholder
-    const getVideoThumbnail = (link) => {
-        // Simple check for youtube
-        if (link.includes('youtube.com') || link.includes('youtu.be')) {
-            // This is a naive extraction, in real app use regex
-            return null; // Return null to show placeholder or iframe
-        }
-        return null;
-    }
 
     const [playingVideo, setPlayingVideo] = useState(null);
 
