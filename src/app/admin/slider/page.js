@@ -41,7 +41,12 @@ export default function SliderPage() {
             document.getElementById('fileInput').value = '';
             fetchSliders();
         } else {
-            alert('Failed to upload');
+            try {
+                const errorData = await res.json();
+                alert(`Failed: ${errorData.message}`);
+            } catch (err) {
+                alert(`Failed: Server Error ${res.status}`);
+            }
         }
     }
 
