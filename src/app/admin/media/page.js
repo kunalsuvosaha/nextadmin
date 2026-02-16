@@ -19,6 +19,11 @@ export default function MediaPage() {
         if (selectedIds.length === 0) return alert('Please select items to delete first.');
         if (!confirm(`Are you sure you want to delete ${selectedIds.length} items?`)) return;
 
+        // Optimistic Update: Remove items from UI immediately
+        const originalItems = [...mediaItems];
+        setMediaItems(items => items.filter(i => !selectedIds.includes(i._id)));
+        setSelectedIds([]);
+
         try {
             const res = await fetch('/api/admin/media/bulk-delete', {
                 method: 'POST',
@@ -27,15 +32,18 @@ export default function MediaPage() {
             });
 
             if (res.ok) {
-                setSelectedIds([]);
+                // Background re-fetch to ensure consistency
                 fetchMedia();
                 alert('Selected items deleted successfully.');
             } else {
+                // Revert on failure
+                setMediaItems(originalItems);
                 const data = await res.json();
                 alert(`Bulk Delete Failed: ${data.message}`);
             }
         } catch (error) {
             console.error(error);
+            setMediaItems(originalItems);
             alert('Bulk Delete Failed: Server Error');
         }
     }
@@ -50,7 +58,7 @@ export default function MediaPage() {
 
     function handleSelectAll() {
         if (type === 'IMAGE') {
-            const allImageIds = images.map(img => img.id);
+            const allImageIds = images.map(img => img._id);
             if (allImageIds.every(id => selectedIds.includes(id))) {
                 // Deselect all images
                 setSelectedIds(selectedIds.filter(id => !allImageIds.includes(id)));
@@ -60,7 +68,7 @@ export default function MediaPage() {
                 setSelectedIds([...otherIds, ...allImageIds]);
             }
         } else {
-            const allVideoIds = videos.map(vid => vid.id);
+            const allVideoIds = videos.map(vid => vid._id);
             if (allVideoIds.every(id => selectedIds.includes(id))) {
                 // Deselect all videos
                 setSelectedIds(selectedIds.filter(id => !allVideoIds.includes(id)));
@@ -164,16 +172,23 @@ export default function MediaPage() {
 
     async function handleDelete(id) {
         if (!confirm('Are you sure?')) return;
+
+        // Optimistic Update
+        const originalItems = [...mediaItems];
+        setMediaItems(items => items.filter(i => i._id !== id));
+
         try {
             const res = await fetch(`/api/admin/media/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 fetchMedia();
             } else {
+                setMediaItems(originalItems); // Revert
                 const data = await res.json();
                 alert(`Delete Failed: ${data.message}`);
             }
         } catch (error) {
             console.error(error);
+            setMediaItems(originalItems); // Revert
             alert('Delete Failed: Server Error');
         }
     }
@@ -240,7 +255,7 @@ export default function MediaPage() {
                         style={{ backgroundColor: '#6c757d', borderColor: '#6c757d' }}
                         onClick={handleSelectAll}
                     >
-                        {(type === 'IMAGE' ? images.length > 0 && images.every(i => selectedIds.includes(i.id)) : videos.length > 0 && videos.every(v => selectedIds.includes(v.id))) ? 'Deselect All' : 'Select All'}
+                        {(type === 'IMAGE' ? images.length > 0 && images.every(i => selectedIds.includes(i._id)) : videos.length > 0 && videos.every(v => selectedIds.includes(v._id))) ? 'Deselect All' : 'Select All'}
                     </button>
 
                     {selectedIds.length > 0 ? (
@@ -261,7 +276,7 @@ export default function MediaPage() {
                     <h3 className={styles.sectionTitle}>Images</h3>
                     <div className={styles.grid}>
                         {images.map(item => (
-                            <div key={item.id} className={styles.card}>
+                            <div key={item._id} className={styles.card}>
                                 <div
                                     className={styles.cardMediaWrapper}
                                     style={{ cursor: 'pointer' }}
@@ -272,8 +287,8 @@ export default function MediaPage() {
                                         <input
                                             type="checkbox"
                                             className={styles.checkbox}
-                                            checked={selectedIds.includes(item.id)}
-                                            onChange={() => handleSelect(item.id)}
+                                            checked={selectedIds.includes(item._id)}
+                                            onChange={() => handleSelect(item._id)}
                                         />
                                     </div>
                                 </div>
@@ -287,7 +302,7 @@ export default function MediaPage() {
                                         <div className={styles.actions}>
                                             <button className={`${styles.actionBtn} ${styles.replace}`} onClick={() => window.open(item.url, '_blank')}>View</button>
                                             <span>|</span>
-                                            <button className={`${styles.actionBtn} ${styles.delete}`} onClick={() => handleDelete(item.id)}>Delete</button>
+                                            <button className={`${styles.actionBtn} ${styles.delete}`} onClick={() => handleDelete(item._id)}>Delete</button>
                                         </div>
                                     </div>
                                 </div>
@@ -302,7 +317,7 @@ export default function MediaPage() {
                     <h3 className={styles.sectionTitle}>Video</h3>
                     <div className={styles.grid}>
                         {videos.map(item => (
-                            <div key={item.id} className={styles.card}>
+                            <div key={item._id} className={styles.card}>
                                 <div className={styles.cardMediaWrapper}>
                                     <div className={styles.cardMedia} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                         <span style={{ fontSize: '3rem', color: '#ccc' }}>▶</span>
@@ -311,8 +326,8 @@ export default function MediaPage() {
                                         <input
                                             type="checkbox"
                                             className={styles.checkbox}
-                                            checked={selectedIds.includes(item.id)}
-                                            onChange={() => handleSelect(item.id)}
+                                            checked={selectedIds.includes(item._id)}
+                                            onChange={() => handleSelect(item._id)}
                                         />
                                     </div>
                                 </div>
@@ -326,7 +341,7 @@ export default function MediaPage() {
                                         <div className={styles.actions}>
                                             <button className={`${styles.actionBtn} ${styles.replace}`} onClick={() => setPlayingVideo(item)}>View</button>
                                             <span>|</span>
-                                            <button className={`${styles.actionBtn} ${styles.delete}`} onClick={() => handleDelete(item.id)}>Delete</button>
+                                            <button className={`${styles.actionBtn} ${styles.delete}`} onClick={() => handleDelete(item._id)}>Delete</button>
                                         </div>
                                     </div>
                                 </div>
