@@ -205,6 +205,46 @@ export default function MediaPage() {
             </div>
 
             {/* Images Grid */}
+            {images.length > 0 && (
+                <>
+                    <h3 className={styles.sectionTitle}>Images</h3>
+                    <div className={styles.grid}>
+                        {images.map(item => (
+                            <div key={item.id} className={styles.card}>
+                                <div className={styles.cardMediaWrapper}>
+                                    <div className={styles.cardMedia} style={{ backgroundImage: `url(${item.url})` }}></div>
+                                    <div className={styles.checkboxWrapper}>
+                                        <input
+                                            type="checkbox"
+                                            className={styles.checkbox}
+                                            checked={selectedIds.includes(item.id)}
+                                            onChange={() => handleSelect(item.id)}
+                                        />
+                                    </div>
+                                </div>
+                                <div className={styles.cardBody}>
+                                    <div className={styles.row}>
+                                        <span className={styles.label}>Name</span>
+                                        <span className={styles.val}>{item.name}</span>
+                                    </div>
+                                    <div className={styles.row}>
+                                        <span className={styles.label}>Action</span>
+                                        <div className={styles.actions}>
+                                            <button className={`${styles.actionBtn} ${styles.copy}`} onClick={() => {
+                                                navigator.clipboard.writeText(item.url);
+                                                alert('URL Copied!');
+                                            }}>Copy</button>
+                                            <span>|</span>
+                                            <button className={`${styles.actionBtn} ${styles.delete}`} onClick={() => handleDelete(item.id)}>Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
+
             {videos.length > 0 && (
                 <>
                     <h3 className={styles.sectionTitle}>Video</h3>
