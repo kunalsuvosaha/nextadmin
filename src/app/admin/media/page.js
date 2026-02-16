@@ -16,18 +16,27 @@ export default function MediaPage() {
     }, []);
 
     async function handleBulkDelete() {
-        if (selectedIds.length === 0) return;
-        if (!confirm(`Delete ${selectedIds.length} items?`)) return;
+        if (selectedIds.length === 0) return alert('Please select items to delete first.');
+        if (!confirm(`Are you sure you want to delete ${selectedIds.length} items?`)) return;
 
-        const res = await fetch('/api/admin/media/bulk-delete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ids: selectedIds })
-        });
+        try {
+            const res = await fetch('/api/admin/media/bulk-delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids: selectedIds })
+            });
 
-        if (res.ok) {
-            setSelectedIds([]);
-            fetchMedia();
+            if (res.ok) {
+                setSelectedIds([]);
+                fetchMedia();
+                alert('Selected items deleted successfully.');
+            } else {
+                const data = await res.json();
+                alert(`Bulk Delete Failed: ${data.message}`);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Bulk Delete Failed: Server Error');
         }
     }
 
@@ -36,6 +45,30 @@ export default function MediaPage() {
             setSelectedIds(selectedIds.filter(i => i !== id));
         } else {
             setSelectedIds([...selectedIds, id]);
+        }
+    }
+
+    function handleSelectAll() {
+        if (type === 'IMAGE') {
+            const allImageIds = images.map(img => img.id);
+            if (allImageIds.every(id => selectedIds.includes(id))) {
+                // Deselect all images
+                setSelectedIds(selectedIds.filter(id => !allImageIds.includes(id)));
+            } else {
+                // Select all images
+                const otherIds = selectedIds.filter(id => !allImageIds.includes(id));
+                setSelectedIds([...otherIds, ...allImageIds]);
+            }
+        } else {
+            const allVideoIds = videos.map(vid => vid.id);
+            if (allVideoIds.every(id => selectedIds.includes(id))) {
+                // Deselect all videos
+                setSelectedIds(selectedIds.filter(id => !allVideoIds.includes(id)));
+            } else {
+                // Select all videos
+                const otherIds = selectedIds.filter(id => !allVideoIds.includes(id));
+                setSelectedIds([...otherIds, ...allVideoIds]);
+            }
         }
     }
 
@@ -201,14 +234,22 @@ export default function MediaPage() {
                     {loading ? 'Submitting...' : 'Submit'}
                 </button>
 
-                <div style={{ minWidth: '100px' }}>
-                    {(images.some(i => selectedIds.includes(i.id)) || videos.some(v => selectedIds.includes(v.id))) ? (
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <button
+                        className={styles.deleteBtn}
+                        style={{ backgroundColor: '#6c757d', borderColor: '#6c757d' }}
+                        onClick={handleSelectAll}
+                    >
+                        {(type === 'IMAGE' ? images.length > 0 && images.every(i => selectedIds.includes(i.id)) : videos.length > 0 && videos.every(v => selectedIds.includes(v.id))) ? 'Deselect All' : 'Select All'}
+                    </button>
+
+                    {selectedIds.length > 0 ? (
                         <button className={styles.deleteBtn} onClick={handleBulkDelete}>
                             Delete ({selectedIds.length})
                         </button>
                     ) : (
-                        <button className={styles.deleteBtn}>
-                            Delete <span>&#9662;</span>
+                        <button className={styles.deleteBtn} disabled style={{ opacity: 0.5, cursor: 'not-allowed' }}>
+                            Delete
                         </button>
                     )}
                 </div>
