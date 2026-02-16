@@ -11,9 +11,7 @@ export default function AdminLayout({ children }) {
                     <Link href="/admin/jobs">Job Management</Link>
                     <Link href="/admin/media">Media</Link>
                 </nav>
-                <div className="user-actions">
-                    <span>Admin</span>
-                </div>
+
             </header>
             <main className={styles.content}>
                 {children}
