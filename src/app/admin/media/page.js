@@ -40,7 +40,8 @@ export default function MediaPage() {
     }
 
     async function fetchMedia() {
-        const res = await fetch('/api/admin/media');
+        // Add timestamp to prevent caching
+        const res = await fetch(`/api/admin/media?t=${Date.now()}`);
         const data = await res.json();
         setMediaItems(data);
     }
@@ -52,9 +53,6 @@ export default function MediaPage() {
         setLoading(true);
 
         try {
-            // DEBUG: Start
-            alert("Starting Upload Process...");
-
             // IF FILE: Upload to Cloudinary CLIENT-SIDE (Bypasses Vercel 4.5MB limit)
             let finalUrl = url;
             let finalPublicId = '';
@@ -62,22 +60,15 @@ export default function MediaPage() {
 
             if (file) {
                 // 1. Get Signature from backend
-                alert("Step 1: Getting Signature...");
                 const signRes = await fetch('/api/admin/media/sign', { method: 'POST' });
-
-                if (!signRes.ok) {
-                    const err = await signRes.text(); // Get text in case JSON fails
-                    throw new Error(`Signature Failed: ${err}`);
-                }
-
+                if (!signRes.ok) throw new Error('Failed to get upload signature');
                 const signData = await signRes.json();
+
                 const { signature, timestamp, cloudName, apiKey } = signData;
 
                 if (!cloudName || !apiKey || !signature) {
                     throw new Error("Missing config from signature API");
                 }
-
-                alert(`Step 2: Uploading to Cloudinary (Cloud: ${cloudName})...`);
 
                 // 2. Upload to Cloudinary directly
                 const formData = new FormData();
@@ -100,12 +91,10 @@ export default function MediaPage() {
                     throw new Error(error.message || 'Cloudinary Upload Failed');
                 }
 
-                alert("Step 3: Upload Complete! Saving to Database...");
-
                 const uploadData = await uploadRes.json();
                 finalUrl = uploadData.secure_url;
                 finalPublicId = uploadData.public_id;
-                finalType = resourceType === 'video' ? 'VIDEO' : 'IMAGE';
+                finalType = resourceType === 'video' ? 'video' : 'image'; // Store lowercase
             }
 
             // 3. Save Metadata to DB (Backend)
@@ -116,12 +105,11 @@ export default function MediaPage() {
                     name,
                     url: finalUrl,
                     publicId: finalPublicId,
-                    type: finalType
+                    type: finalType.toLowerCase() // Ensure lowercase
                 })
             });
 
             if (saveRes.ok) {
-                alert("Success! Media Saved.");
                 setName('');
                 setFile(null);
                 setUrl('');
@@ -135,7 +123,7 @@ export default function MediaPage() {
 
         } catch (error) {
             console.error(error);
-            alert(`DEBUG ERROR: ${error.message}`);
+            alert(`Upload Failed: ${error.message}`);
         } finally {
             setLoading(false);
         }
@@ -147,8 +135,9 @@ export default function MediaPage() {
         if (res.ok) fetchMedia();
     }
 
-    const images = mediaItems.filter(m => m.type === 'IMAGE');
-    const videos = mediaItems.filter(m => m.type === 'VIDEO');
+    // Filter case-insensitively
+    const images = mediaItems.filter(m => m.type && m.type.toLowerCase() === 'image');
+    const videos = mediaItems.filter(m => m.type && m.type.toLowerCase() === 'video');
 
     const [playingVideo, setPlayingVideo] = useState(null);
 

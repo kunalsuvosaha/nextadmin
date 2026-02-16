@@ -3,10 +3,16 @@ import dbConnect from '@/lib/mongodb';
 import Media from '@/models/Media';
 import { v2 as cloudinary } from 'cloudinary';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
-    await dbConnect();
-    const media = await Media.find({}).sort({ createdAt: -1 });
-    return NextResponse.json(media);
+    try {
+        await dbConnect();
+        const media = await Media.find({}).sort({ createdAt: -1 });
+        return NextResponse.json(media);
+    } catch (error) {
+        return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    }
 }
 
 export async function POST(request) {
@@ -30,11 +36,10 @@ export async function POST(request) {
             api_secret: apiSecret
         });
 
-        // 4. PARSE DATA (Matches Slider Logic)
         const contentType = request.headers.get('content-type') || '';
 
         if (contentType.includes('multipart/form-data')) {
-            // (Legacy/Small File Upload Logic - Kept for fallback if needed, but client-side preferred)
+            // (Legacy/Small File Upload Logic)
             const data = await request.formData();
             const file = data.get('file');
 
@@ -45,15 +50,14 @@ export async function POST(request) {
             const bytes = await file.arrayBuffer();
             const buffer = Buffer.from(bytes);
 
-            // Determine type (image or video)
-            const type = file.type.startsWith('video') ? 'video' : 'image';
+            // Normalize type to lowercase for consistency
+            const typeLower = file.type.startsWith('video') ? 'video' : 'image';
 
-            // Upload to Cloudinary
             const result = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
                     {
                         folder: 'nextadmin/media',
-                        resource_type: 'auto' // Auto-detect image or video
+                        resource_type: 'auto'
                     },
                     (error, result) => {
                         if (error) {
@@ -71,7 +75,7 @@ export async function POST(request) {
                 name: file.name,
                 url: result.secure_url,
                 publicId: result.public_id,
-                type: type,
+                type: typeLower,
             });
 
             return NextResponse.json({ success: true, data: newMedia });
@@ -82,14 +86,17 @@ export async function POST(request) {
             const { name, url, publicId, type } = body;
 
             if (!name || !url || !publicId || !type) {
-                return NextResponse.json({ success: false, message: 'Missing metadata fields (name, url, publicId, type)' }, { status: 400 });
+                return NextResponse.json({ success: false, message: 'Missing metadata fields' }, { status: 400 });
             }
+
+            // Normalize type to lowercase for consistency
+            const typeLower = type.toLowerCase();
 
             const newMedia = await Media.create({
                 name,
                 url,
                 publicId,
-                type
+                type: typeLower
             });
 
             return NextResponse.json({ success: true, data: newMedia });
