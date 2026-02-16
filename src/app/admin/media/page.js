@@ -131,8 +131,18 @@ export default function MediaPage() {
 
     async function handleDelete(id) {
         if (!confirm('Are you sure?')) return;
-        const res = await fetch(`/api/admin/media/${id}`, { method: 'DELETE' });
-        if (res.ok) fetchMedia();
+        try {
+            const res = await fetch(`/api/admin/media/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                fetchMedia();
+            } else {
+                const data = await res.json();
+                alert(`Delete Failed: ${data.message}`);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Delete Failed: Server Error');
+        }
     }
 
     // Filter case-insensitively
@@ -211,9 +221,13 @@ export default function MediaPage() {
                     <div className={styles.grid}>
                         {images.map(item => (
                             <div key={item.id} className={styles.card}>
-                                <div className={styles.cardMediaWrapper}>
+                                <div
+                                    className={styles.cardMediaWrapper}
+                                    style={{ cursor: 'pointer' }}
+                                    onClick={() => window.open(item.url, '_blank')}
+                                >
                                     <div className={styles.cardMedia} style={{ backgroundImage: `url(${item.url})` }}></div>
-                                    <div className={styles.checkboxWrapper}>
+                                    <div className={styles.checkboxWrapper} onClick={e => e.stopPropagation()}>
                                         <input
                                             type="checkbox"
                                             className={styles.checkbox}
@@ -230,10 +244,7 @@ export default function MediaPage() {
                                     <div className={styles.row}>
                                         <span className={styles.label}>Action</span>
                                         <div className={styles.actions}>
-                                            <button className={`${styles.actionBtn} ${styles.copy}`} onClick={() => {
-                                                navigator.clipboard.writeText(item.url);
-                                                alert('URL Copied!');
-                                            }}>Copy</button>
+                                            <button className={`${styles.actionBtn} ${styles.replace}`} onClick={() => window.open(item.url, '_blank')}>View</button>
                                             <span>|</span>
                                             <button className={`${styles.actionBtn} ${styles.delete}`} onClick={() => handleDelete(item.id)}>Delete</button>
                                         </div>
@@ -315,26 +326,6 @@ export default function MediaPage() {
                     </div>
                 </div>
             )}
-
-            {/* DEBUG VIEW - TO BE REMOVED */}
-            <div style={{ marginTop: '50px', padding: '20px', background: '#f0f0f0', border: '2px dashed red' }}>
-                <h3>Debug Info (Take a screenshot if empty!)</h3>
-                <p><strong>Total Items Fetched:</strong> {mediaItems.length}</p>
-                <p><strong>Last Updated:</strong> {new Date().toLocaleTimeString()}</p>
-                <hr style={{ margin: '10px 0' }} />
-                <h4>Top 5 Recent Items:</h4>
-                <ul style={{ listStyle: 'disc', paddingLeft: '20px' }}>
-                    {mediaItems.slice(0, 5).map((item, index) => (
-                        <li key={index}>
-                            <strong>{item.name}</strong> ({item.type}) - <small>{new Date(item.createdAt).toLocaleString()}</small>
-                        </li>
-                    ))}
-                </ul>
-                <details>
-                    <summary>Show Full JSON</summary>
-                    <pre>{JSON.stringify(mediaItems.slice(0, 3), null, 2)}</pre>
-                </details>
-            </div>
 
         </div>
     );
