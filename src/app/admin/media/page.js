@@ -52,6 +52,9 @@ export default function MediaPage() {
         setLoading(true);
 
         try {
+            // DEBUG: Start
+            alert("Starting Upload Process...");
+
             // IF FILE: Upload to Cloudinary CLIENT-SIDE (Bypasses Vercel 4.5MB limit)
             let finalUrl = url;
             let finalPublicId = '';
@@ -59,11 +62,22 @@ export default function MediaPage() {
 
             if (file) {
                 // 1. Get Signature from backend
+                alert("Step 1: Getting Signature...");
                 const signRes = await fetch('/api/admin/media/sign', { method: 'POST' });
-                if (!signRes.ok) throw new Error('Failed to get upload signature');
-                const signData = await signRes.json();
 
+                if (!signRes.ok) {
+                    const err = await signRes.text(); // Get text in case JSON fails
+                    throw new Error(`Signature Failed: ${err}`);
+                }
+
+                const signData = await signRes.json();
                 const { signature, timestamp, cloudName, apiKey } = signData;
+
+                if (!cloudName || !apiKey || !signature) {
+                    throw new Error("Missing config from signature API");
+                }
+
+                alert(`Step 2: Uploading to Cloudinary (Cloud: ${cloudName})...`);
 
                 // 2. Upload to Cloudinary directly
                 const formData = new FormData();
@@ -86,6 +100,8 @@ export default function MediaPage() {
                     throw new Error(error.message || 'Cloudinary Upload Failed');
                 }
 
+                alert("Step 3: Upload Complete! Saving to Database...");
+
                 const uploadData = await uploadRes.json();
                 finalUrl = uploadData.secure_url;
                 finalPublicId = uploadData.public_id;
@@ -105,6 +121,7 @@ export default function MediaPage() {
             });
 
             if (saveRes.ok) {
+                alert("Success! Media Saved.");
                 setName('');
                 setFile(null);
                 setUrl('');
@@ -118,7 +135,7 @@ export default function MediaPage() {
 
         } catch (error) {
             console.error(error);
-            alert(`Upload Failed: ${error.message}`);
+            alert(`DEBUG ERROR: ${error.message}`);
         } finally {
             setLoading(false);
         }
