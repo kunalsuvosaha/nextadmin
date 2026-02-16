@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Slider from '@/models/Slider';
-import cloudinary from '@/lib/cloudinary';
+import { v2 as cloudinary } from 'cloudinary';
 
 export async function GET() {
     await dbConnect();
@@ -13,17 +13,24 @@ export async function POST(request) {
     try {
         await dbConnect();
 
-        // STRICT DEBUGGING: Check Env Vars
+        // 1. RESOLVE ENV VARS MANUALLY
         const cloudName = process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
         const apiKey = process.env.CLOUDINARY_API_KEY || process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
         const apiSecret = process.env.CLOUDINARY_API_SECRET || process.env.NEXT_PUBLIC_CLOUDINARY_API_SECRET;
 
-        // If missing, return exact error to Frontend Alert
-        if (!cloudName) return NextResponse.json({ success: false, message: 'CRITICAL: Cloud Name is Mising in Vercel Env' }, { status: 500 });
-        if (!apiKey) return NextResponse.json({ success: false, message: 'CRITICAL: API Key is Missing in Vercel Env' }, { status: 500 });
-        if (!apiSecret) return NextResponse.json({ success: false, message: 'CRITICAL: API Secret is Missing in Vercel Env' }, { status: 500 });
+        // 2. FAIL FAST IF MISSING
+        if (!cloudName) return NextResponse.json({ success: false, message: 'CRITICAL: Cloud Name is Missing' }, { status: 500 });
+        if (!apiKey) return NextResponse.json({ success: false, message: 'CRITICAL: API Key is Missing' }, { status: 500 });
+        if (!apiSecret) return NextResponse.json({ success: false, message: 'CRITICAL: API Secret is Missing' }, { status: 500 });
 
-        console.log("Upload Request Started with Cloud Name:", cloudName);
+        // 3. CONFIGURE CLOUDINARY EXPLICITLY HERE
+        cloudinary.config({
+            cloud_name: cloudName,
+            api_key: apiKey,
+            api_secret: apiSecret
+        });
+
+        console.log("Cloudinary Configured Inline for:", cloudName);
 
         const data = await request.formData();
         const file = data.get('file');

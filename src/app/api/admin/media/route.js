@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Media from '@/models/Media';
-import cloudinary from '@/lib/cloudinary';
+import { v2 as cloudinary } from 'cloudinary';
 
 export async function GET() {
     await dbConnect();
@@ -12,6 +12,24 @@ export async function GET() {
 export async function POST(request) {
     try {
         await dbConnect();
+
+        // 1. RESOLVE ENV VARS MANUALLY
+        const cloudName = process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+        const apiKey = process.env.CLOUDINARY_API_KEY || process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
+        const apiSecret = process.env.CLOUDINARY_API_SECRET || process.env.NEXT_PUBLIC_CLOUDINARY_API_SECRET;
+
+        // 2. FAIL FAST IF MISSING
+        if (!cloudName) return NextResponse.json({ success: false, message: 'CRITICAL: Cloud Name is Missing' }, { status: 500 });
+        if (!apiKey) return NextResponse.json({ success: false, message: 'CRITICAL: API Key is Missing' }, { status: 500 });
+        if (!apiSecret) return NextResponse.json({ success: false, message: 'CRITICAL: API Secret is Missing' }, { status: 500 });
+
+        // 3. CONFIGURE CLOUDINARY EXPLICITLY HERE
+        cloudinary.config({
+            cloud_name: cloudName,
+            api_key: apiKey,
+            api_secret: apiSecret
+        });
+
         const contentType = request.headers.get('content-type') || '';
 
         if (contentType.includes('multipart/form-data')) {
