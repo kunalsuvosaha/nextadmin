@@ -16,9 +16,26 @@ const JobSchema = new mongoose.Schema({
     salary: {
         type: String,
     },
-    type: {
+    // Missing Fields Added
+    designation: {
+        type: String,
+    },
+    category: {
+        type: String,
+    },
+    jobType: {
         type: String, // Full-time, Part-time, etc.
     },
+    deadline: {
+        type: String, // Storing as String to match form input type="date" value
+    },
+    skillName: {
+        type: String,
+    },
+    imageUrl: {
+        type: String,
+    },
+    // End Missing Fields
     status: {
         type: Boolean,
         default: true,

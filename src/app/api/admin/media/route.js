@@ -30,52 +30,49 @@ export async function POST(request) {
             api_secret: apiSecret
         });
 
-        const contentType = request.headers.get('content-type') || '';
+        // 4. PARSE DATA (Matches Slider Logic)
+        const data = await request.formData();
+        const file = data.get('file');
+        const name = data.get('name'); // Also get name if passed, though Media model might just need file
 
-        if (contentType.includes('multipart/form-data')) {
-            const data = await request.formData();
-            const file = data.get('file');
-
-            if (!file) {
-                return NextResponse.json({ success: false, message: 'Missing file' }, { status: 400 });
-            }
-
-            const bytes = await file.arrayBuffer();
-            const buffer = Buffer.from(bytes);
-
-            // Determine type (image or video)
-            const type = file.type.startsWith('video') ? 'video' : 'image';
-
-            // Upload to Cloudinary
-            const result = await new Promise((resolve, reject) => {
-                const uploadStream = cloudinary.uploader.upload_stream(
-                    {
-                        folder: 'nextadmin/media',
-                        resource_type: 'auto' // Auto-detect image or video
-                    },
-                    (error, result) => {
-                        if (error) {
-                            console.error("Cloudinary Error:", error);
-                            reject(error);
-                        } else {
-                            resolve(result);
-                        }
-                    }
-                );
-                uploadStream.end(buffer);
-            });
-
-            const newMedia = await Media.create({
-                name: file.name,
-                url: result.secure_url,
-                publicId: result.public_id,
-                type: type,
-            });
-
-            return NextResponse.json({ success: true, data: newMedia });
-        } else {
-            return NextResponse.json({ success: false, message: 'Invalid content type' }, { status: 400 });
+        if (!file) {
+            return NextResponse.json({ success: false, message: 'Missing file' }, { status: 400 });
         }
+
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+
+        // Determine type (image or video)
+        const type = file.type.startsWith('video') ? 'video' : 'image';
+
+        // Upload to Cloudinary
+        const result = await new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+                {
+                    folder: 'nextadmin/media',
+                    resource_type: 'auto' // Auto-detect image or video
+                },
+                (error, result) => {
+                    if (error) {
+                        console.error("Cloudinary Error:", error);
+                        reject(error);
+                    } else {
+                        resolve(result);
+                    }
+                }
+            );
+            uploadStream.end(buffer);
+        });
+
+        const newMedia = await Media.create({
+            name: name || file.name, // Use provided name or filename
+            url: result.secure_url,
+            publicId: result.public_id,
+            type: type,
+        });
+
+        return NextResponse.json({ success: true, data: newMedia });
+
     } catch (error) {
         console.error("Upload API Error:", error);
         return NextResponse.json({ success: false, message: error.message || 'Server Error' }, { status: 500 });
