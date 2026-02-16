@@ -276,6 +276,18 @@ export default function MediaPage() {
                 </div>
             )}
 
+            {/* DEBUG VIEW - TO BE REMOVED */}
+            <div style={{ marginTop: '50px', padding: '20px', background: '#f0f0f0', border: '2px dashed red' }}>
+                <h3>Debug Info (Take a screenshot if empty!)</h3>
+                <p><strong>Total Items Fetched:</strong> {mediaItems.length}</p>
+                <p><strong>Images Count:</strong> {images.length}</p>
+                <p><strong>Videos Count:</strong> {videos.length}</p>
+                <details>
+                    <summary>Show Raw Data (First 3 Items)</summary>
+                    <pre>{JSON.stringify(mediaItems.slice(0, 3), null, 2)}</pre>
+                </details>
+            </div>
+
         </div>
     );
 }
