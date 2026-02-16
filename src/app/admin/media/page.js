@@ -47,49 +47,80 @@ export default function MediaPage() {
 
     async function handleSubmit() {
         if (!name) return alert('Name is required');
-
         if (!file && !url) return alert('File or URL is required');
 
         setLoading(true);
-        let res;
 
-        // Use FormData if file is present, regardless of type (IMAGE or VIDEO)
-        if (file) {
-            const formData = new FormData();
-            formData.append('name', name);
-            formData.append('file', file);
-            formData.append('type', type);
-            res = await fetch('/api/admin/media', { method: 'POST', body: formData });
-        } else {
-            // JSON fallback (only if URL present and no file)
-            if (type === 'VIDEO' && !url) {
-                setLoading(false);
-                return alert('Video upload is disabled for now (URL disabled). Upload a file/thumbnail instead.');
+        try {
+            // IF FILE: Upload to Cloudinary CLIENT-SIDE (Bypasses Vercel 4.5MB limit)
+            let finalUrl = url;
+            let finalPublicId = '';
+            let finalType = type;
+
+            if (file) {
+                // 1. Get Signature from backend
+                const signRes = await fetch('/api/admin/media/sign', { method: 'POST' });
+                if (!signRes.ok) throw new Error('Failed to get upload signature');
+                const signData = await signRes.json();
+
+                const { signature, timestamp, cloudName, apiKey } = signData;
+
+                // 2. Upload to Cloudinary directly
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('api_key', apiKey);
+                formData.append('timestamp', timestamp);
+                formData.append('signature', signature);
+                formData.append('folder', 'nextadmin/media');
+
+                // Determine resource type based on file (video vs image)
+                const resourceType = file.type.startsWith('video') ? 'video' : 'image';
+
+                const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!uploadRes.ok) {
+                    const error = await uploadRes.json();
+                    throw new Error(error.message || 'Cloudinary Upload Failed');
+                }
+
+                const uploadData = await uploadRes.json();
+                finalUrl = uploadData.secure_url;
+                finalPublicId = uploadData.public_id;
+                finalType = resourceType === 'video' ? 'VIDEO' : 'IMAGE';
             }
 
-            res = await fetch('/api/admin/media', {
+            // 3. Save Metadata to DB (Backend)
+            const saveRes = await fetch('/api/admin/media', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, url, type: 'VIDEO' })
+                body: JSON.stringify({
+                    name,
+                    url: finalUrl,
+                    publicId: finalPublicId,
+                    type: finalType
+                })
             });
-        }
 
-        setLoading(false);
-        if (res.ok) {
-            setName('');
-            setFile(null);
-            setUrl('');
-            // Reset file input
-            const fileInput = document.getElementById('fileInput');
-            if (fileInput) fileInput.value = '';
-            fetchMedia();
-        } else {
-            try {
-                const errorData = await res.json();
-                alert(`Failed: ${errorData.message}`);
-            } catch (e) {
-                alert(`Failed: Server Error (${res.status} ${res.statusText})`);
+            if (saveRes.ok) {
+                setName('');
+                setFile(null);
+                setUrl('');
+                const fileInput = document.getElementById('fileInput');
+                if (fileInput) fileInput.value = '';
+                fetchMedia();
+            } else {
+                const errorData = await saveRes.json();
+                alert(`Failed to Save: ${errorData.message}`);
             }
+
+        } catch (error) {
+            console.error(error);
+            alert(`Upload Failed: ${error.message}`);
+        } finally {
+            setLoading(false);
         }
     }
 
