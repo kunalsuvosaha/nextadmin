@@ -280,10 +280,18 @@ export default function MediaPage() {
             <div style={{ marginTop: '50px', padding: '20px', background: '#f0f0f0', border: '2px dashed red' }}>
                 <h3>Debug Info (Take a screenshot if empty!)</h3>
                 <p><strong>Total Items Fetched:</strong> {mediaItems.length}</p>
-                <p><strong>Images Count:</strong> {images.length}</p>
-                <p><strong>Videos Count:</strong> {videos.length}</p>
+                <p><strong>Last Updated:</strong> {new Date().toLocaleTimeString()}</p>
+                <hr style={{ margin: '10px 0' }} />
+                <h4>Top 5 Recent Items:</h4>
+                <ul style={{ listStyle: 'disc', paddingLeft: '20px' }}>
+                    {mediaItems.slice(0, 5).map((item, index) => (
+                        <li key={index}>
+                            <strong>{item.name}</strong> ({item.type}) - <small>{new Date(item.createdAt).toLocaleString()}</small>
+                        </li>
+                    ))}
+                </ul>
                 <details>
-                    <summary>Show Raw Data (First 3 Items)</summary>
+                    <summary>Show Full JSON</summary>
                     <pre>{JSON.stringify(mediaItems.slice(0, 3), null, 2)}</pre>
                 </details>
             </div>
