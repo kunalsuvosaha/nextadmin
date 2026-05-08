@@ -7,15 +7,24 @@ export default function JobsPage() {
     const [jobs, setJobs] = useState([]);
     const [selectedIds, setSelectedIds] = useState([]);
 
-    useEffect(() => {
-        fetchJobs();
-    }, []);
-
     async function fetchJobs() {
         const res = await fetch('/api/admin/jobs');
-        const data = await res.json();
-        setJobs(data);
+        return res.json();
     }
+
+    useEffect(() => {
+        let ignore = false;
+
+        fetchJobs().then(data => {
+            if (!ignore) {
+                setJobs(data);
+            }
+        });
+
+        return () => {
+            ignore = true;
+        };
+    }, []);
 
     async function toggleStatus(id, currentStatus) {
         const res = await fetch(`/api/admin/jobs/${id}`, {
@@ -23,13 +32,13 @@ export default function JobsPage() {
             body: JSON.stringify({ status: !currentStatus }),
             headers: { 'Content-Type': 'application/json' }
         });
-        if (res.ok) fetchJobs();
+        if (res.ok) setJobs(await fetchJobs());
     }
 
     async function handleDelete(id) {
         if (!confirm('Are you sure?')) return;
         const res = await fetch(`/api/admin/jobs/${id}`, { method: 'DELETE' });
-        if (res.ok) fetchJobs();
+        if (res.ok) setJobs(await fetchJobs());
     }
 
     async function handleBulkDelete() {
@@ -44,7 +53,7 @@ export default function JobsPage() {
 
         if (res.ok) {
             setSelectedIds([]);
-            fetchJobs();
+            setJobs(await fetchJobs());
         }
     }
 

@@ -193,6 +193,25 @@ export default function MediaPage() {
         }
     }
 
+    async function handleToggleFeature(id, currentStatus) {
+        try {
+            const res = await fetch(`/api/admin/media/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isFeatured: !currentStatus })
+            });
+            if (res.ok) {
+                fetchMedia();
+            } else {
+                const data = await res.json();
+                alert(`Error: ${data.message}`);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Server Error');
+        }
+    }
+
     // Filter case-insensitively
     const images = mediaItems.filter(m => m.type && m.type.toLowerCase() === 'image');
     const videos = mediaItems.filter(m => m.type && m.type.toLowerCase() === 'video');
@@ -300,6 +319,13 @@ export default function MediaPage() {
                                     <div className={styles.row}>
                                         <span className={styles.label}>Action</span>
                                         <div className={styles.actions}>
+                                            <button 
+                                                className={`${styles.actionBtn} ${item.isFeatured ? styles.delete : styles.replace}`} 
+                                                onClick={() => handleToggleFeature(item._id, item.isFeatured)}
+                                            >
+                                                {item.isFeatured ? '⭐ Unfeature' : 'Feature'}
+                                            </button>
+                                            <span>|</span>
                                             <button className={`${styles.actionBtn} ${styles.replace}`} onClick={() => window.open(item.url, '_blank')}>View</button>
                                             <span>|</span>
                                             <button className={`${styles.actionBtn} ${styles.delete}`} onClick={() => handleDelete(item._id)}>Delete</button>

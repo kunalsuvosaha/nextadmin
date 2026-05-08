@@ -21,6 +21,14 @@ const MediaSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    isFeatured: {
+        type: Boolean,
+        default: false,
+    },
 });
 
-export default mongoose.models.Media || mongoose.model('Media', MediaSchema);
+if (mongoose.models.Media) {
+    delete mongoose.models.Media;
+}
+
+export default mongoose.model('Media', MediaSchema);

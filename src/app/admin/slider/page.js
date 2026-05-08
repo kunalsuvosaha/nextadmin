@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import styles from './slider.module.css';
 
 export default function SliderPage() {
@@ -9,15 +10,24 @@ export default function SliderPage() {
     const [loading, setLoading] = useState(false);
     const [selectedIds, setSelectedIds] = useState([]);
 
-    useEffect(() => {
-        fetchSliders();
-    }, []);
-
     async function fetchSliders() {
         const res = await fetch('/api/admin/sliders');
-        const data = await res.json();
-        setSliders(data);
+        return res.json();
     }
+
+    useEffect(() => {
+        let ignore = false;
+
+        fetchSliders().then(data => {
+            if (!ignore) {
+                setSliders(data);
+            }
+        });
+
+        return () => {
+            ignore = true;
+        };
+    }, []);
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -39,7 +49,7 @@ export default function SliderPage() {
             setFile(null);
             // Reset file input value
             document.getElementById('fileInput').value = '';
-            fetchSliders();
+            setSliders(await fetchSliders());
         } else {
             try {
                 const errorData = await res.json();
@@ -53,7 +63,7 @@ export default function SliderPage() {
     async function handleDelete(id) {
         if (!confirm('Are you sure?')) return;
         const res = await fetch(`/api/admin/sliders/${id}`, { method: 'DELETE' });
-        if (res.ok) fetchSliders();
+        if (res.ok) setSliders(await fetchSliders());
     }
 
     async function toggleStatus(id, currentStatus) {
@@ -62,7 +72,7 @@ export default function SliderPage() {
             body: JSON.stringify({ status: !currentStatus }),
             headers: { 'Content-Type': 'application/json' }
         });
-        if (res.ok) fetchSliders();
+        if (res.ok) setSliders(await fetchSliders());
     }
 
     async function handleBulkDelete() {
@@ -77,7 +87,7 @@ export default function SliderPage() {
 
         if (res.ok) {
             setSelectedIds([]);
-            fetchSliders();
+            setSliders(await fetchSliders());
         }
     }
 
@@ -126,7 +136,13 @@ export default function SliderPage() {
                 {sliders.map(slider => (
                     <div key={slider._id || slider.id} className={styles.card}>
                         <div className={styles.cardMediaWrapper}>
-                            <img src={slider.imageUrl} alt={slider.name} className={styles.cardMedia} />
+                            <Image
+                                src={slider.imageUrl}
+                                alt={slider.name}
+                                className={styles.cardMedia}
+                                fill
+                                sizes="(max-width: 768px) 100vw, 280px"
+                            />
                             <div className={styles.checkboxWrapper}>
                                 <input
                                     type="checkbox"

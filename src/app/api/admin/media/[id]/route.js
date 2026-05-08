@@ -40,3 +40,36 @@ export async function DELETE(request, { params }) {
         return NextResponse.json({ success: false, message: error.message || 'Server Error' }, { status: 500 });
     }
 }
+
+export async function PATCH(request, { params }) {
+    try {
+        await dbConnect();
+        const { id } = await params;
+        const { isFeatured } = await request.json();
+
+        const media = await Media.findById(id);
+
+        if (!media) {
+            return NextResponse.json({ success: false, message: 'Media not found' }, { status: 404 });
+        }
+
+        // If trying to feature an item, check the limit
+        if (isFeatured) {
+            const featuredCount = await Media.countDocuments({ isFeatured: true, type: 'image' });
+            if (featuredCount >= 2 && !media.isFeatured) {
+                return NextResponse.json({ 
+                    success: false, 
+                    message: 'Maximum of 2 images can be featured on the landing page.' 
+                }, { status: 400 });
+            }
+        }
+
+        media.isFeatured = isFeatured;
+        await media.save();
+
+        return NextResponse.json({ success: true, data: media });
+    } catch (error) {
+        console.error("Media Update Error:", error);
+        return NextResponse.json({ success: false, message: error.message || 'Server Error' }, { status: 500 });
+    }
+}
