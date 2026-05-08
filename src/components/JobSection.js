@@ -32,6 +32,11 @@ export default function JobSection({ initialJobs }) {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(initialJobs.length === 10);
   const [page, setPage] = useState(1);
+  const [selectedJob, setSelectedJob] = useState(null);
+
+  const handleApply = () => {
+    alert("Application system is currently under development. Please check back later!");
+  };
 
   const loadMoreJobs = async () => {
     setLoading(true);
@@ -92,6 +97,13 @@ export default function JobSection({ initialJobs }) {
                 {job.jobType && <span className={styles.tag}>{job.jobType}</span>}
                 {job.category && <span className={styles.tag}>{job.category}</span>}
               </div>
+
+              <button 
+                className={styles.viewBtn}
+                onClick={() => setSelectedJob(job)}
+              >
+                Full View
+              </button>
             </div>
           ))}
         </div>
@@ -108,6 +120,48 @@ export default function JobSection({ initialJobs }) {
           </div>
         )}
       </div>
+
+      {/* Full View Modal */}
+      {selectedJob && (
+        <div className={styles.modalOverlay} onClick={() => setSelectedJob(null)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <div>
+                <h3 className={styles.modalTitle}>{selectedJob.title}</h3>
+                <div style={{ color: '#64748b', fontSize: '0.9rem' }}>
+                  Posted {timeAgo(selectedJob.createdAt)}
+                </div>
+              </div>
+              <button className={styles.closeModalBtn} onClick={() => setSelectedJob(null)}>
+                &times;
+              </button>
+            </div>
+
+            <div className={styles.modalBody}>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+                {selectedJob.designation && <span className={styles.tag}>{selectedJob.designation}</span>}
+                {selectedJob.location && <span className={styles.tag}>{selectedJob.location}</span>}
+                {selectedJob.salary && <span className={styles.tag}>₹ {selectedJob.salary} / month</span>}
+                {selectedJob.jobType && <span className={styles.tag}>{selectedJob.jobType}</span>}
+              </div>
+
+              <h4 className={styles.modalSectionTitle}>Job Description</h4>
+              <div className={styles.modalDescription}>
+                {selectedJob.description || "No detailed description provided for this role."}
+              </div>
+            </div>
+
+            <div className={styles.modalFooter}>
+              <button className={styles.cancelBtn} onClick={() => setSelectedJob(null)}>
+                Close
+              </button>
+              <button className={styles.applyBtn} onClick={handleApply}>
+                Apply Now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
