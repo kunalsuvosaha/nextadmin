@@ -32,10 +32,20 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    padding: 0.55rem 0.8rem;
+    border-radius: 6px;
+    transition: background-color 0.2s, color 0.2s;
 }
 
 .nav a:hover {
     color: #1a237e;
+    background-color: #eef2ff;
+}
+
+.nav a.activeNavLink {
+    color: #1a237e;
+    background-color: #e0e7ff;
+    font-weight: 700;
 }
 
 .content {
@@ -61,6 +71,12 @@
     .nav a {
         padding: 0.5rem 0;
         border-bottom: 1px solid #eee;
+        border-radius: 0;
+    }
+
+    .nav a.activeNavLink {
+        padding-left: 0.75rem;
+        border-left: 3px solid #1a237e;
     }
 
     .content {

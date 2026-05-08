@@ -6,6 +6,11 @@ import styles from './admin.module.css';
 export default function AdminLayout({ children }) {
     const router = useRouter();
     const pathname = usePathname();
+    const navItems = [
+        { href: '/admin/slider', label: 'Slider' },
+        { href: '/admin/jobs', label: 'Job Management' },
+        { href: '/admin/media', label: 'Media' },
+    ];
 
     // Do not show the navigation header if we are on the login page
     if (pathname === '/admin/login') {
@@ -27,11 +32,21 @@ export default function AdminLayout({ children }) {
     return (
         <div className={styles.container}>
             <header className={styles.header}>
-                <div className={styles.logo}>JobHunt</div>
                 <nav className={styles.nav}>
-                    <Link href="/admin/slider">Slider</Link>
-                    <Link href="/admin/jobs">Job Management</Link>
-                    <Link href="/admin/media">Media</Link>
+                    {navItems.map((item) => {
+                        const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+
+                        return (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className={isActive ? styles.activeNavLink : undefined}
+                                aria-current={isActive ? 'page' : undefined}
+                            >
+                                {item.label}
+                            </Link>
+                        );
+                    })}
                 </nav>
                 <div className={styles.userActions}>
                     <Link href="/" className={styles.btnWebsite}>Go to Website</Link>
