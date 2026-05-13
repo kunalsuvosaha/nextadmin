@@ -1,22 +1,29 @@
 import { NextResponse } from 'next/server';
+import { ADMIN_AUTH_COOKIE, verifyAdminToken } from '@/lib/auth';
 
-export function middleware(request) {
+export async function middleware(request) {
     const { pathname } = request.nextUrl;
 
     // Check if it's an admin route or admin API route
     const isAdminRoute = pathname.startsWith('/admin');
     const isAdminApiRoute = pathname.startsWith('/api/admin');
 
-    // Exclude login routes from protection
-    if (pathname === '/admin/login' || pathname === '/api/admin/login' || pathname === '/api/admin/logout') {
+    // Exclude auth routes from protection
+    if (
+        pathname === '/admin/login' ||
+        pathname === '/admin/register' ||
+        pathname === '/api/auth/login' ||
+        pathname === '/api/auth/register' ||
+        pathname === '/api/admin/logout'
+    ) {
         return NextResponse.next();
     }
 
     if (isAdminRoute || isAdminApiRoute) {
-        // Check for the admin session cookie
-        const adminToken = request.cookies.get('admin_session');
+        const adminToken = request.cookies.get(ADMIN_AUTH_COOKIE)?.value;
+        const payload = await verifyAdminToken(adminToken);
 
-        if (!adminToken || adminToken.value !== 'authenticated') {
+        if (!payload) {
             // If accessing an API route, return 401
             if (isAdminApiRoute) {
                 return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

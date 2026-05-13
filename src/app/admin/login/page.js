@@ -1,10 +1,11 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import styles from './login.module.css';
 
 export default function LoginPage() {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -16,12 +17,12 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            const res = await fetch('/api/admin/login', {
+            const res = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username, password }),
+                body: JSON.stringify({ email, password }),
             });
 
             if (res.ok) {
@@ -45,13 +46,14 @@ export default function LoginPage() {
                 <form onSubmit={handleLogin} className={styles.form}>
                     {error && <div className={styles.error}>{error}</div>}
                     <div className={styles.inputGroup}>
-                        <label htmlFor="username" className={styles.label}>Username</label>
+                        <label htmlFor="email" className={styles.label}>Email</label>
                         <input
-                            type="text"
-                            id="username"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            type="email"
+                            id="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             className={styles.input}
+                            autoComplete="email"
                             required
                         />
                     </div>
@@ -63,12 +65,16 @@ export default function LoginPage() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className={styles.input}
+                            autoComplete="current-password"
                             required
                         />
                     </div>
                     <button type="submit" className={styles.submitBtn} disabled={loading}>
                         {loading ? 'Logging in...' : 'Login'}
                     </button>
+                    <p className={styles.footerText}>
+                        Need an admin account? <Link href="/admin/register">Register</Link>
+                    </p>
                 </form>
             </div>
         </div>
