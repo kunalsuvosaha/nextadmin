@@ -4,11 +4,20 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import styles from './admin.module.css';
 
+function RouteChangeReset({ onReset }) {
+    useEffect(() => {
+        onReset();
+    }, [onReset]);
+
+    return null;
+}
+
 export default function AdminLayout({ children }) {
     const router = useRouter();
     const pathname = usePathname();
     const [admin, setAdmin] = useState(null);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [isPageLoading, setIsPageLoading] = useState(false);
     const navItems = [
         { href: '/admin/slider', label: 'Slider' },
         { href: '/admin/jobs', label: 'Job Management' },
@@ -49,6 +58,12 @@ export default function AdminLayout({ children }) {
         };
     }, [pathname]);
 
+    function handleNavigationStart(href) {
+        if (href !== pathname) {
+            setIsPageLoading(true);
+        }
+    }
+
     // Do not show the navigation header on auth pages
     if (pathname === '/admin/login' || pathname === '/admin/register') {
         return (
@@ -68,6 +83,13 @@ export default function AdminLayout({ children }) {
 
     return (
         <div className={styles.container}>
+            <RouteChangeReset
+                key={pathname}
+                onReset={() => {
+                    setIsPageLoading(false);
+                    setIsProfileOpen(false);
+                }}
+            />
             <header className={styles.header}>
                 <nav className={styles.nav}>
                     {navItems.map((item) => {
@@ -79,6 +101,7 @@ export default function AdminLayout({ children }) {
                                 href={item.href}
                                 className={isActive ? styles.activeNavLink : undefined}
                                 aria-current={isActive ? 'page' : undefined}
+                                onClick={() => handleNavigationStart(item.href)}
                             >
                                 {item.label}
                             </Link>
@@ -125,10 +148,17 @@ export default function AdminLayout({ children }) {
                             </div>
                         )}
                     </div>
-                    <Link href="/" className={styles.btnWebsite}>Go to Website</Link>
-                    <button onClick={handleLogout} className={styles.btnLogout}>Logout</button>
+                    <Link href="/" className={styles.btnWebsite} onClick={() => setIsPageLoading(true)}>Go to Website</Link>
+                    <button onClick={handleLogout} className={styles.btnLogout} disabled={isPageLoading}>
+                        Logout
+                    </button>
                 </div>
             </header>
+            {isPageLoading && (
+                <div className={styles.loadingOverlay} role="status" aria-live="polite" aria-label="Loading page">
+                    <div className={styles.spinner}></div>
+                </div>
+            )}
             <main className={styles.content}>
                 {children}
             </main>
